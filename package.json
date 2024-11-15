@@ -5,20 +5,36 @@
   "main": "index.html",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "test": "jest"
   },
   "author": "Alamin",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-jest": "^29.7.0",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^6.7.3",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "mini-css-extract-plugin": "^2.7.5",
     "sass": "^1.62.0",
     "sass-loader": "^13.2.2",
     "webpack": "^5.80.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeWithAlamin/Tip-calculator-app.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/CodeWithAlamin/Tip-calculator-app/issues"
+  },
+  "homepage": "https://github.com/CodeWithAlamin/Tip-calculator-app#readme"
 }

@@ -1,6 +1,31 @@
 "use strict";
 import "../sass/main.scss";
 
+// Main function to calculate the tip
+export const calcTip = function (bill, percent, person) {
+  if (person === 0) throw new Error("Number of people cannot be zero"); // Handle zero people
+  const totalTip = (bill * percent) / 100;
+  const tip = totalTip / person;
+  const total = (bill + totalTip) / person;
+
+  return { tip: tip, total: total };
+};
+
+// Function to render the output values in the DOM
+export const renderOutput = function (obj) {
+  const outputTip = document.getElementById("tip");
+  const outputTotal = document.getElementById("total");
+  outputTip.textContent = obj.tip.toFixed(2);
+  outputTotal.textContent = obj.total.toFixed(2);
+};
+
+// Verifier function to check input values and trigger calculations
+export const verifier = function (bill, percent, person) {
+  if (bill === undefined || percent === undefined || person === undefined) return;
+  renderOutput(calcTip(bill, percent, person));
+};
+
+// Immediately Invoked Function Expression (IIFE) to manage DOM events
 (function () {
   const inpBill = document.getElementById("bill");
   const parcents = document.querySelector(".percentages-container");
@@ -10,109 +35,63 @@ import "../sass/main.scss";
   const errorMsgEl = document.querySelector(".error-msg");
   const btnReset = document.querySelector(".btn-reset");
 
-  const outputTip = document.getElementById("tip");
-  const outputTotal = document.getElementById("total");
+  // Event listener for percentage buttons
+  if (parcents) {
+    parcents.addEventListener("click", function (event) {
+      const radioEl = event.target.closest(".radio-parcent");
+      if (!radioEl) return;
 
-  ///////////////
-  // Tip calcutor
-  const calcTip = function (bill, percent, person) {
-    const totalTip = (bill * percent) / 100;
-    const tip = totalTip / person;
-    const total = (bill + totalTip) / person;
+      const curPers = +radioEl.value;
+      inpCustom.value = "";
 
-    return { tip: tip, total: total };
-  };
-
-  /////////////////
-  ////////////////
-
-  let curBill, curPers, curPerson;
-
-  ////////////////
-  /////Verifier
-  const verifier = function () {
-    if (
-      curBill === undefined ||
-      curBill === undefined ||
-      curPerson === undefined
-    )
-      return;
-
-    renderOutput(calcTip(curBill, curPers, curPerson));
-  };
-
-  ////////////////
-  //percentage input
-  parcents.addEventListener("click", function (event) {
-    const radioEl = event.target.closest(".radio-parcent");
-    if (!radioEl) return;
-
-    curPers = +radioEl.value;
-    inpCustom.value = "";
-
-    verifier();
-  });
-
-  //////////////////
-  // Custom percentage input
-  inpCustom.addEventListener("input", function () {
-    curPers = +inpCustom.value;
-    allRadio.forEach((radio) => {
-      if (radio.checked) radio.checked = false;
+      verifier(+inpBill.value, curPers, +inpPerson.value);
     });
+  }
 
-    verifier();
-  });
+  // Event listener for custom percentage input
+  if (inpCustom) {
+    inpCustom.addEventListener("input", function () {
+      const curPers = +inpCustom.value;
+      allRadio.forEach((radio) => {
+        if (radio.checked) radio.checked = false;
+      });
 
-  //////////////////
-  //Bill input
-  inpBill.addEventListener("input", function () {
-    curBill = +inpBill.value;
+      verifier(+inpBill.value, curPers, +inpPerson.value);
+    });
+  }
 
-    verifier();
-  });
+  // Event listener for bill input
+  if (inpBill) {
+    inpBill.addEventListener("input", function () {
+      verifier(+inpBill.value, +inpCustom.value || +document.querySelector(".radio-parcent:checked")?.value, +inpPerson.value);
+    });
+  }
 
-  ////////////////////////
-  // Input number of peopel
-  inpPerson.addEventListener("input", function () {
-    if (+inpPerson.value < 1) {
-      inpPerson.style.outline = "2px solid var(--red)";
-      errorMsgEl.textContent = "Can't be zero";
-      return;
-    }
+  // Event listener for number of people input
+  if (inpPerson) {
+    inpPerson.addEventListener("input", function () {
+      if (+inpPerson.value < 1) {
+        inpPerson.style.outline = "2px solid var(--red)";
+        errorMsgEl.textContent = "Can't be zero"; // Display error message
+      } else {
+        inpPerson.style.outline = null;
+        errorMsgEl.textContent = ""; // Clear error message
+        verifier(+inpBill.value, +inpCustom.value || +document.querySelector(".radio-parcent:checked")?.value, +inpPerson.value);
+      }
+    });
+  }
 
-    inpPerson.style.outline = null;
-    errorMsgEl.textContent = "";
-    curPerson = +inpPerson.value;
-
-    verifier();
-  });
-
-  ////////////////////////////
-  // Rendering the output
-  const renderOutput = function (obj) {
-    outputTip.textContent = obj.tip.toFixed(2);
-    outputTotal.textContent = obj.total.toFixed(2);
-  };
-
-  ///////////////////////
-  //reset funtionality
+  // Reset function to clear all inputs and outputs
   const reset = function () {
     inpBill.value = "";
     inpCustom.value = "";
     inpPerson.value = "";
-    curBill = undefined;
-    curPers = undefined;
-    curPerson = undefined;
-
-    allRadio.forEach((rad) => (rad.checked = false));
-    renderOutput(calcTip(0, 0, 1));
+    allRadio.forEach((radio) => (radio.checked = false));
+    renderOutput({ tip: 0, total: 0 }); // Reset outputs to "0.00"
   };
-  reset(); // Calling immediately after reloading the page.
 
-  ////////////////////
-  //Reset button listener
-  btnReset.addEventListener("click", function () {
-    reset();
-  });
+  // Event listener for reset button
+  if (btnReset) {
+    btnReset.addEventListener("click", reset);
+  }
 })();
